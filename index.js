@@ -14,44 +14,69 @@ app.get("/", function(req, res) {
   res.render("Main", {});
 });
 app.post("/", (req, res) => {
+  console.log(req.headers.cookie);
   if (req.body.idtoken && req.body.profilePic && req.body.username) {
+    console.log("User Signed In!")
     console.log(`ID_TOKEN Recieved: ${req.body.idtoken}`);
     console.log(`User_Name Recieved: ${req.body.username}`);
     console.log(`Profile_Pic Recieved: ${req.body.profilePic}`);
-    MongoClient.connect(uri, {
+    /*
+      To access the Token: req.body.idtoken
+      To access the Username: req.body.username
+      To access the Picture: req.body.profilePic
+    */
+  };
+});
+app.get("/Flow", (req, res) => {
+  var check = req.headers.cookie.split("; ")[2];
+  if (check) {
+      MongoClient.connect(uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   }, (err, client) => {
     if (err) {
       console.error(err)
-      return;
+      return
     }
-    collection = client.db("Nodeflow").collection("UserInfo");
-    /*Check Who The User Is And If They're User Data Is Already Stored In MongoDB. If They're Info Is Stored In Mongo, Don't Send The Data. If They're Info Isn't Stored Store It.*/
+    collection = client.db("Nodeflow").collection("Posts");
+    console.log("Querying...");
+    collection.find({}).toArray(function(err, result) {
+      if (err) throw err;
+      res.render('Flow', {
+        "blogs": result
+      });
     });
-  };
-  if (req.body.isSigningOut) {
-    console.log("User Signed Out");
-    res.clearCookie("ID_TOKEN", {
-      expires: new Date(Date.now() + 1000 * 60 * 599999),
-      httpOnly: true,
-    });
-    res.end();
-    return;
+  });
   } else {
-    res.cookie("ID_TOKEN", req.body.idtoken, {
-      expires: new Date(Date.now() + 1000 * 60 * 599999),
-      httpOnly: true,
-    });
-  };
-  /* 
-    To access the Token: req.body.idtoken
-    To access the Username: req.body.username
-    To access the Picture: req.body.profilePic
-  */
+    res.render("404");
+  }
 });
-app.get("/Flow", (req, res) => {
-  res.render("Flow", {});
+app.post("/Flow", (req, res) => {
+  MongoClient.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err)
+      return
+    }
+    collection = client.db("Nodeflow").collection("Posts");
+    console.log("Querying...")
+    collection.insertOne({ title: req.body.title, date: req.body.date, name: req.body.name, blog: req.body.blog, }, (err, result) => {
+      if (err) throw err;
+      console.log("Posted!")
+      res.render('Main')
+      client.close();
+    });
+  });
+});
+app.get("/Create", (req, res) => {
+  var check = req.headers.cookie.split("; ")[3];
+  if (check) {
+    res.render("Create");
+  } else {
+    res.render("404");
+  };
 });
 app.get("*", function(req, res) {
   res.status(404).render("404");

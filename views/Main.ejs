@@ -16,6 +16,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="https://use.typekit.net/tzl3gvc.css">
+  <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
             <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Nodeflow</title>
@@ -50,15 +52,15 @@
         <br>
         <form class="form-inline">
           <input class="form-control" type="search" placeholder="Search Posts...">
-          <input style="position: absolute; left: 153vh;" class="btn btn-info" type="submit"/>
+          <input style="position: absolute; left: 172vh;" class="btn btn-info" type="submit"/>
         </form>
         <h1>
         </h1>
-          <a href="Flow/"><button id="showme" style="display: none; position: absolute; top: 1.6vh;" class="btn btn-outline-info">Flow</button></a>
+        <div id="showme" style="display: none;">
+          <a href="/Flow"><button style="position: absolute; top: 1.5vh; left: 185vh" class="btn btn-outline-info">Flow</button></a>
+          <a href="/Create"><button style="position: absolute; top: 1.5vh; left: 195vh" class="btn btn-outline-info">Create</button></a>
+          </div>
         <br>
-        <form class="form-inline">
-        <button onclick="signOut();" class="btn btn-outline-info">Sign out</button>
-        </form>
       </div>
   </nav>
    
@@ -76,6 +78,22 @@
     </style>
    
       <script>
+      window.cookieconsent.initialise({
+        "palette": {
+          "popup": {
+            "background": "teal",
+            "text": "#ffffff"
+          },
+          "button": {
+            "background": "transparent",
+            "text": "whitesmoke",
+            "border": "whitesmoke"
+          }
+        },
+        "content": {
+          "message": "Nodeflow uses cookies to keep you signed in!"
+        }
+      });
         $("#icon").attr(
           "href",
           "data:image/png;base64,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"
@@ -91,15 +109,11 @@
               username: user_name,
               profilePic: imur,
               }, data => {});
+              document.cookie = `idToken=${id_token}; path=/; expires=Thu, 01 Jan 5000 00:00:01 GMT;`;
           if(id_token != null) {
             document.getElementById("showme").style.display = "block";
           };
         };
-        function signOut() {
-         var auth2 = gapi.auth2.getAuthInstance();
-         auth2.signOut().then(function () {});
-         $.post("/", { isSigningOut: true },(data) => {})
-      };
     </script>
     <div align="center">
       <br>
@@ -110,4 +124,6 @@
     <br>
      
     </div>
+    <body>
   </html>
+
