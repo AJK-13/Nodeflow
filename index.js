@@ -71,7 +71,7 @@ app.post("/Flow", (req, res) => {
   });
 });
 app.get("/Create", (req, res) => {
-  var check = req.headers.cookie.split("; ")[3];
+  var check = req.headers.cookie.split("; ")[2];
   if (check) {
     res.render("Create");
   } else {
