@@ -50,10 +50,6 @@
         <h1>
         </h1>
         <br>
-        <form class="form-inline">
-          <input class="form-control" type="search" placeholder="Search Posts...">
-          <input style="position: absolute; left: 172vh;" class="btn btn-info" type="submit"/>
-        </form>
         <h1>
         </h1>
         <div id="showme" style="display: none;">
@@ -105,7 +101,7 @@
             var user_name = profile.getName();
             var imur = profile.getImageUrl();
             $.post("/", {
-              idtoken : id_token,
+              idtoken: id_token,
               username: user_name,
               profilePic: imur,
               }, data => {});
