@@ -81,23 +81,7 @@ app.get("/Create", (req, res) => {
 app.get("/Search", (req, res) => {
   var check = req.headers.cookie.split("; ")[2];
   if (check) {
-    MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }, (err, client) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-      collection = client.db("Nodeflow").collection("Posts");
-      console.log("Finding...");
-      var query = { title: req.body.query };
-      collection.find(query).toArray(function(err, result) {
-        if (err) throw err;
-        res.render('Search', {
-          "blogs": result
-        });
-      });
+    res.render("Search", {
     });
   } else {
     res.render("404");
@@ -110,3 +94,4 @@ app.listen(8080, () => {
   console.log("Server Started on port %d", 8080);
 });
 // Add a respond button
+// Finish up the search
