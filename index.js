@@ -40,7 +40,7 @@ app.get("/Flow", (req, res) => {
       }
       collection = client.db("Nodeflow").collection("Posts");
       console.log("Querying...");
-      collection.find({}).toArray(function(err, result) {
+      collection.find().sort({ _id: -1 }).toArray(function(err, result) {
         if (err) throw err;
         res.render('Flow', {
           "blogs": result
@@ -81,45 +81,40 @@ app.get("/Create", (req, res) => {
 app.get("/Search", (req, res) => {
   var check = req.headers.cookie.split("; ")[2];
   if (check) {
-    // MongoClient.connect(uri, {
-    //   useNewUrlParser: true,
-    //   useUnifiedTopology: true
-    // }, (err, client) => {
-    //   if (err) {
-    //     console.error(err)
-    //     return
-    //   }
-    //   collection = client.db("Nodeflow").collection("Posts");
-    //   console.log("Finding...");
-    //   var data = collection.aggregate([
-    //     {
-    //       $search: {
-    //         "text": {
-    //           "query": query,
-    //           "path": "title"
-    //         }
-    //       }
-    //     },
-    //     {
-    //       $limit: 5
-    //     },
-    //     {
-    //       $project: {
-    //         "_id": 0,
-    //         "title": 1,
-    //         "name": 1,
-    //         "blog": 1,
-    //         "date": 1
-    //       }
-    //     }
-    //   ]).toArray(function(err, result) {
-    //     if (err) throw err;
-    res.render('Search', {
-      // "blogs": result,
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }, (err, client) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      collection = client.db("Nodeflow").collection("SearchQuery");
+      console.log("Finding...");
+      collection.find().sort({ _id: -1 }).limit(1).toArray(function(err, query) {
+        if (err) throw err;
+        console.log(query);
+        MongoClient.connect(uri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        }, (err, client) => {
+          if (err) {
+            console.error(err)
+            return;
+          }
+          newCollection = client.db("Nodeflow").collection("Posts");
+          console.log("Matching...");
+          newCollection.find().toArray(function(err, result) {
+            if (err) throw err;
+            console.log(result)
+            res.render('Search', {
+              "searched": query,
+              "blogs": result
+            });
+          });
+        });
+      });
     });
-    // console.log("Found!");
-    // });
-    // });
   } else {
     res.render("404");
   };
@@ -127,6 +122,22 @@ app.get("/Search", (req, res) => {
 app.post("/Search", (req, res) => {
   var query = req.body.query;
   console.log("Searched:", query);
+  MongoClient.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err)
+      return
+    }
+    collection = client.db("Nodeflow").collection("SearchQuery");
+    console.log("Inserting...");
+    collection.insertOne({ query: req.body.query, }, (err, result) => {
+      if (err) throw err;
+      console.log("Inserted!");
+      client.close();
+    });
+  });
 });
 app.get("*", function(req, res) {
   res.status(404).render("404");
