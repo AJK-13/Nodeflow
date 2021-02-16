@@ -52,39 +52,23 @@ app.get("/Flow", (req, res) => {
   }
 });
 app.post("/Flow", (req, res) => {
-  if (req.body.search) {
-    var query = req.body.query;
-    console.log("Searched:", req.body.query);
-    MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }, (err, client) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-      collection = client.db("Nodeflow").collection("Posts");
-      console.log("Finding...")
+  MongoClient.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err)
+      return
+    }
+    collection = client.db("Nodeflow").collection("Posts");
+    console.log("Querying...")
+    collection.insertOne({ title: req.body.title, date: req.body.date, name: req.body.name, blog: req.body.blog, }, (err, result) => {
+      if (err) throw err;
+      console.log("Posted!");
+      res.render('Main');
+      client.close();
     });
-  } else {
-    MongoClient.connect(uri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }, (err, client) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-      collection = client.db("Nodeflow").collection("Posts");
-      console.log("Querying...")
-      collection.insertOne({ title: req.body.title, date: req.body.date, name: req.body.name, blog: req.body.blog, }, (err, result) => {
-        if (err) throw err;
-        console.log("Posted!");
-        res.render('Main');
-        client.close();
-      });
-    });
-  };
+  });
 });
 app.get("/Create", (req, res) => {
   var check = req.headers.cookie.split("; ")[2];
@@ -97,11 +81,52 @@ app.get("/Create", (req, res) => {
 app.get("/Search", (req, res) => {
   var check = req.headers.cookie.split("; ")[2];
   if (check) {
-    res.render("Search", {
+    // MongoClient.connect(uri, {
+    //   useNewUrlParser: true,
+    //   useUnifiedTopology: true
+    // }, (err, client) => {
+    //   if (err) {
+    //     console.error(err)
+    //     return
+    //   }
+    //   collection = client.db("Nodeflow").collection("Posts");
+    //   console.log("Finding...");
+    //   var data = collection.aggregate([
+    //     {
+    //       $search: {
+    //         "text": {
+    //           "query": query,
+    //           "path": "title"
+    //         }
+    //       }
+    //     },
+    //     {
+    //       $limit: 5
+    //     },
+    //     {
+    //       $project: {
+    //         "_id": 0,
+    //         "title": 1,
+    //         "name": 1,
+    //         "blog": 1,
+    //         "date": 1
+    //       }
+    //     }
+    //   ]).toArray(function(err, result) {
+    //     if (err) throw err;
+    res.render('Search', {
+      // "blogs": result,
     });
+    // console.log("Found!");
+    // });
+    // });
   } else {
     res.render("404");
   };
+});
+app.post("/Search", (req, res) => {
+  var query = req.body.query;
+  console.log("Searched:", query);
 });
 app.get("*", function(req, res) {
   res.status(404).render("404");

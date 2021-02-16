@@ -74,8 +74,7 @@
       $("#btn").on("click", function() {
     var query = $("#q").val()
 location.href = "/Search?q=" + encodeURIComponent(query);
-$.post("/Flow", {
-           search: true,
+$.post("/Search", {
            query: query
          },(data) => {});
   });
