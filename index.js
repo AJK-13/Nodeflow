@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 const cookieParser = require("cookie-parser");
 const MongoClient = require("mongodb").MongoClient;
 const fetch = require("node-fetch");
@@ -104,9 +105,12 @@ app.get("/Search", (req, res) => {
           }
           newCollection = client.db("Nodeflow").collection("Posts");
           console.log("Matching...");
-          newCollection.find().toArray(function(err, result) {
+          var querys = fs.readFileSync("Query.txt", { encoding: "utf8" });
+          newCollection.find({ title: querys }).toArray(function(err, result) {
             if (err) throw err;
-            console.log(result)
+            console.log(query);
+            console.log(querys);
+            console.log(result);
             res.render('Search', {
               "searched": query,
               "blogs": result
@@ -136,6 +140,7 @@ app.post("/Search", (req, res) => {
       if (err) throw err;
       console.log("Inserted!");
       client.close();
+      fs.writeFile("Query.txt", req.body.query, () => { });
     });
   });
 });
@@ -146,4 +151,3 @@ app.listen(8080, () => {
   console.log("Server Started on port %d", 8080);
 });
 // Add a respond button
-// Finish up the search
