@@ -21,7 +21,6 @@
             <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
-  <title>Nodeflow | Search: <% searched.map(searched => { %><%=searched.query%><% })%></title>
   <body>
 
     <script src = "script.js"></script>
@@ -54,8 +53,8 @@
           "message": "Nodeflow uses cookies to keep you signed in!"
         }
       });
-      // var getSearch = window.location.href.split("q=")[1];
-      // document.title = `Nodeflow | Search: ${getSearch}`;
+      var getSearch = window.location.href.split("q=")[1];
+      document.title = `Nodeflow | Search: ${getSearch}`;
       // ^ 500000000000000000000000000000000000000 IQ PLAY
         $("#icon").attr(
           "href",

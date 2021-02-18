@@ -10,7 +10,7 @@ app.set("view engine", "ejs");
 app.use(bp.json());
 app.use(bp.urlencoded({ extended: true }));
 app.use(cookieParser());
-const uri = `mongodb+srv://Ajk:${process.env.TOKEN}@nodeflow.1ujtn.mongodb.net/Nodeflow?retryWrites=true&w=majority`;
+const uri = process.env.MONGODB;
 app.get("/", function(req, res) {
   res.render("Main", {});
 });
