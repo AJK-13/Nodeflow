@@ -144,6 +144,35 @@ app.post("/Search", (req, res) => {
     });
   });
 });
+app.get("/Post", function(req, res) {
+  var check = req.headers.cookie.split("; ")[2];
+  if (check) {
+    var Post = fs.readFileSync("Post.txt", { encoding: "utf8" });
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }, (err, client) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      collection = client.db("Nodeflow").collection("Posts");
+      console.log("Getting Post...");
+      collection.find({ title: Post }).sort({ _id: -1 }).toArray(function(err, result) {
+        if (err) throw err;
+        res.render('Post', {
+          "blogs": result
+        });
+      });
+    });
+  } else {
+    res.render("404");
+  };
+});
+app.post("/Post", function(req, res) {
+  console.log("Post: " + req.body.getloc);
+  fs.writeFile("Post.txt", req.body.getloc, () => { });
+});
 app.get("*", function(req, res) {
   res.status(404).render("404");
 });
