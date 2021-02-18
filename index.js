@@ -170,8 +170,12 @@ app.get("/Post", function(req, res) {
   };
 });
 app.post("/Post", function(req, res) {
-  console.log("Post: " + req.body.getloc);
-  fs.writeFile("Post.txt", req.body.getloc, () => { });
+  if (req.body.resp) {
+    console.log("Response: " + req.body.resp);
+  } else {
+    console.log("Post: " + req.body.getloc);
+    fs.writeFile("Post.txt", req.body.getloc, () => { });
+  };
 });
 app.get("*", function(req, res) {
   res.status(404).render("404");

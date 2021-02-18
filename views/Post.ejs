@@ -95,5 +95,22 @@ $.post("/Post", {
     <br>
   <% })%>
 </ul>
-<!--Add response box here-->
+<div align="center" class="fixed-bottom">
+<textarea align="center" id="resp" name = "resp" placeholder="Write a response..." class="form-control" style="color: black; background-color: transparent; width: 1700px; height: 120px; font-family: Raleway; font-size: 16px;"></textarea>
+<input id="btn" type="submit" class="btn btn-info w-100"/>
+</div>
+<script> 
+$("#btn").on("click", function() {
+var resplen = $("#resp").val().length;
+var respval = $("#resp").val();
+if(resplen == 0) {
+  notie.alert({ type: 3, text: `Do Not Submit Empty Responses!`, stay: false });
+} else {
+  notie.alert({ type: 1, text: `Submitted!`, stay: false });
+  $.post("/Post", {
+  resp: respval
+  },(data) => {});
+  };
+});
+</script>
   </html>
