@@ -121,4 +121,10 @@ $.post("/Search", {
   </div>
   </div>
 </form>
+<br>
+<div style="border-radius: 5px; position: absolute; width: 250px; height: 250px; "class="card bg-dark fixed-bottom"><br><h1 style="color: whitesmoke; position: absolute; top: 2.5vh; left: 4vh;"><% data.map(data => { %><%=data.un%><% })%></h1>
+<br>
+<br>
+<img src="<% data.map(data => { %><%=data.imur%><% })%>" style="position: relative; top: 1.5vh; left: 4vh; width: 15vh; height: 15vh; border-radius: 10px;">
+</div>
   </html>

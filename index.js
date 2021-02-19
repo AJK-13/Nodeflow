@@ -15,12 +15,32 @@ app.get("/", function(req, res) {
   res.render("Main", {});
 });
 app.post("/", (req, res) => {
-  console.log(req.headers.cookie);
+  var cookieToken = req.cookies.idToken;
+  console.log(cookieToken);
   if (req.body.idtoken && req.body.profilePic && req.body.username) {
     console.log("User Signed In!")
     console.log(`ID_TOKEN Recieved: ${req.body.idtoken}`);
     console.log(`User_Name Recieved: ${req.body.username}`);
     console.log(`Profile_Pic Recieved: ${req.body.profilePic}`);
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }, (err, client) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      collection2 = client.db("Nodeflow").collection("UserData");
+      console.log("Inserting User Data...")
+      collection2.find({ Username: req.body.username }).toArray(function(err, checkVal) {
+        if (err) throw err;
+        collection2.insertOne({ un: req.body.username, imur: req.body.profilePic, Id_Token: req.body.idtoken, }, (err, result) => {
+          if (err) throw err;
+          console.log("Inserted User Data!");
+          client.close();
+        });
+      });
+    });
     /*
       To access the Token: req.body.idtoken
       To access the Username: req.body.username
@@ -43,8 +63,24 @@ app.get("/Flow", (req, res) => {
       console.log("Querying...");
       collection.find().sort({ _id: -1 }).toArray(function(err, result) {
         if (err) throw err;
-        res.render('Flow', {
-          "blogs": result
+        MongoClient.connect(uri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        }, (err, client) => {
+          if (err) {
+            console.error(err)
+            return
+          }
+          collection2 = client.db("Nodeflow").collection("UserData");
+          console.log("Inserting...");
+          collection2.find({ Id_Token: req.cookies.idToken }).limit(1).sort({ _id: -1 }).toArray(function(err, otherRes) {
+            if (err) throw err;
+            console.log(otherRes)
+            res.render('Flow', {
+              "blogs": result,
+              "data": otherRes
+            });
+          });
         });
       });
     });
@@ -74,7 +110,23 @@ app.post("/Flow", (req, res) => {
 app.get("/Create", (req, res) => {
   var check = req.headers.cookie.split("; ")[2];
   if (check) {
-    res.render("Create");
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }, (err, client) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      collection2 = client.db("Nodeflow").collection("UserData");
+      console.log("Inserting...");
+      collection2.find({ Id_Token: req.cookies.idToken }).limit(1).sort({ _id: -1 }).toArray(function(err, otherRes) {
+        if (err) throw err;
+        res.render('Create', {
+          "data": otherRes
+        });
+      });
+    });
   } else {
     res.render("404");
   };
@@ -111,9 +163,10 @@ app.get("/Search", (req, res) => {
             console.log(query);
             console.log(querys);
             console.log(result);
+            if (err) throw err;
             res.render('Search', {
-              "searched": query,
-              "blogs": result
+              "blogs": result,
+              "searched": query
             });
           });
         });
@@ -155,7 +208,7 @@ app.get("/Post", function(req, res) {
       if (err) {
         console.error(err)
         return
-      }
+      };
       collection = client.db("Nodeflow").collection("Posts");
       console.log("Getting Post...");
       collection.find({ title: Post }).sort({ _id: -1 }).toArray(function(err, result) {
