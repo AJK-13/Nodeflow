@@ -275,7 +275,6 @@ app.post("/Post", function(req, res) {
     console.log("Name: " + req.body.nameResp);
     console.log("Date: " + req.body.dateResp);
     console.log("Post: " + req.body.getloc);
-    console.log("Post: " + req.body.getloc);
     fs.writeFile("Post.txt", req.body.getloc, () => { });
   };
 });
