@@ -10,7 +10,7 @@ app.set("view engine", "ejs");
 app.use(bp.json());
 app.use(bp.urlencoded({ extended: true }));
 app.use(cookieParser());
-const uri = process.env.MONGODB;
+const uri = process.env.CREDENTIALS;
 app.get("/", function(req, res) {
   res.render("Main", {});
 });
@@ -99,7 +99,7 @@ app.post("/Flow", (req, res) => {
     }
     collection = client.db("Nodeflow").collection("Posts");
     console.log("Querying...")
-    collection.insertOne({ title: req.body.title, date: req.body.date, name: req.body.name, blog: req.body.blog, }, (err, result) => {
+    collection.insertOne({ title: req.body.title, date: req.body.date, name: req.body.name, blog: req.body.blog, response: "", }, (err, result) => {
       if (err) throw err;
       console.log("Posted!");
       res.render('Main');
@@ -198,9 +198,9 @@ app.post("/Search", (req, res) => {
   });
 });
 app.get("/Post", function(req, res) {
+  let Post = fs.readFileSync("Post.txt", { encoding: "utf8" });
   var check = req.headers.cookie.split("; ")[2];
   if (check) {
-    var Post = fs.readFileSync("Post.txt", { encoding: "utf8" });
     MongoClient.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
@@ -209,12 +209,42 @@ app.get("/Post", function(req, res) {
         console.error(err)
         return
       };
-      collection = client.db("Nodeflow").collection("Posts");
-      console.log("Getting Post...");
+      collection = client.db("Nodeflow").collection("Responses");
+      console.log("Getting Responses...");
       collection.find({ title: Post }).sort({ _id: -1 }).toArray(function(err, result) {
         if (err) throw err;
-        res.render('Post', {
-          "blogs": result
+        MongoClient.connect(uri, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+        }, (err, client) => {
+          if (err) {
+            console.error(err)
+            return
+          }
+          collection2 = client.db("Nodeflow").collection("UserData");
+          console.log("Inserting...");
+          collection2.find({ Id_Token: req.cookies.idToken }).limit(1).sort({ _id: -1 }).toArray(function(err, otherRes) {
+            if (err) throw err;
+            MongoClient.connect(uri, {
+              useNewUrlParser: true,
+              useUnifiedTopology: true
+            }, (err, client) => {
+              if (err) {
+                console.error(err)
+                return
+              }
+              collection3 = client.db("Nodeflow").collection("Posts");
+              console.log("Querying...");
+              collection3.find({ title: Post }).sort({ _id: -1 }).toArray(function(err, lastRes) {
+                if (err) throw err;
+                res.render('Post', {
+                  "res": result,
+                  "data": otherRes,
+                  "blogs": lastRes,
+                });
+              });
+            });
+          });
         });
       });
     });
@@ -224,8 +254,27 @@ app.get("/Post", function(req, res) {
 });
 app.post("/Post", function(req, res) {
   if (req.body.resp) {
+    MongoClient.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    }, (err, client) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      collection = client.db("Nodeflow").collection("Responses");
+      console.log("Inserting...");
+      var Post = fs.readFileSync("Post.txt", { encoding: "utf8" });;
+      collection.insertOne({ title: Post, date: req.body.dateResp, name: req.body.nameResp, resp: req.body.resp, }, (err, result) => {
+        if (err) throw err;
+        client.close();
+        console.log("Inserted!")
+      });
+    });
     console.log("Response: " + req.body.resp);
-  } else {
+    console.log("Name: " + req.body.nameResp);
+    console.log("Date: " + req.body.dateResp);
+    console.log("Post: " + req.body.getloc);
     console.log("Post: " + req.body.getloc);
     fs.writeFile("Post.txt", req.body.getloc, () => { });
   };
@@ -236,4 +285,3 @@ app.get("*", function(req, res) {
 app.listen(8080, () => {
   console.log("Server Started on port %d", 8080);
 });
-// Add a respond button
