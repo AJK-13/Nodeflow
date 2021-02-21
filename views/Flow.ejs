@@ -89,10 +89,21 @@ $.post("/Search", {
 <h1 align="center">All Posts:</h1>
 <ul align="center">
   <% blogs.map(blogs => { %>
-  <div align="center" class="card" id="Divz" data-aos="fade-up">
-    <a href="/Post?t=<%=encodeURIComponent(blogs.title)%>"><h1 style="color: #1a5e91;"><%=blogs.title%></h1></a><h4><%=blogs.date%></h4><h4><%=blogs.name%></h4>
+  <div style="height: 12vh" align="center" class="card" id="Divz" data-aos="fade-up">
+    <h1 align="center" style="color: #1a5e91; position: relative; top: -0.5vh;"><a style="color: #1a5e91;" href="/Post?t=<%=encodeURIComponent(blogs.title)%>"><%=blogs.title%></a></h1><h4 style="position: relative; top: 2vh;"><%=blogs.name%></h4><h4 style="position: relative; top: -3.6vh;"><%=blogs.date%></h4>
+    <a style="position: relative; top: 0vh; width: 30px; color: #1a5e91;"><button id="upVoteDis" align="left" style="position: relative; top: -8vh; width: 30px" class="btn btn-outline-info"><h5><%=blogs.upVote%></h5>⇧</button></a>
     </div>
     <br>
+    <script> 
+$("#upVoteDis").on("click", function() {
+var editloc = location.href = "/Flow#<%=encodeURIComponent(blogs.title)%>"
+var getlocation = decodeURIComponent(window.location.href).split("/Flow#")[1];
+$.post("/Flow", {
+           getloc2: getlocation,
+         },(data) => {});
+         location.href = "/Flow";
+  });
+</script>
   <% })%>
 </ul>
   </html>
