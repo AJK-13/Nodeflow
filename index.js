@@ -31,14 +31,21 @@ app.post("/", (req, res) => {
         return
       }
       collection2 = client.db("Nodeflow").collection("UserData");
-      console.log("Inserting User Data...")
-      collection2.find({ Username: req.body.username }).toArray(function (err, checkVal) {
+      console.log("Inserting User Data...");
+      collection2.find({ un: req.body.username }).toArray(function (err, checkVal) {
         if (err) throw err;
-        collection2.insertOne({ un: req.body.username, imur: req.body.profilePic, Id_Token: req.body.idtoken, }, (err, result) => {
-          if (err) throw err;
-          console.log("Inserted User Data!");
-          client.close();
-        });
+        checkVal = checkVal[0];
+        if (checkVal) {
+          console.log("User data is already stored!");
+          fs.writeFile("User.txt", req.body.username, () => { });
+        } else {
+          fs.writeFile("User.txt", req.body.username, () => { });
+          collection2.insertOne({ un: req.body.username, imur: req.body.profilePic, Id_Token: req.body.idtoken, }, (err, result) => {
+            if (err) throw err;
+            console.log("Inserted User Data!");
+            client.close();
+          });
+        }
       });
     });
     /*
@@ -73,7 +80,8 @@ app.get("/Flow", (req, res) => {
           }
           collection2 = client.db("Nodeflow").collection("UserData");
           console.log("Inserting...");
-          collection2.find({ Id_Token: req.cookies.idToken }).limit(1).sort({ _id: -1 }).toArray(function (err, otherRes) {
+          let username = fs.readFileSync("User.txt", { encoding: "utf8" });
+          collection2.find({ un: username }).limit(1).sort({ _id: -1 }).toArray(function (err, otherRes) {
             if (err) throw err;
             console.log(otherRes)
             res.render('Flow', {
