@@ -150,8 +150,10 @@ app.get("/Create", (req, res) => {
       }
       collection2 = client.db("Nodeflow").collection("UserData");
       console.log("Inserting...");
-      collection2.find({ Id_Token: req.cookies.idToken }).limit(1).sort({ _id: -1 }).toArray(function (err, otherRes) {
+      let username = fs.readFileSync("User.txt", { encoding: "utf8" });
+      collection2.find({ un: username }).limit(1).sort({ _id: -1 }).toArray(function (err, otherRes) {
         if (err) throw err;
+        console.log(req.cookies.idToken)
         res.render('Create', {
           "data": otherRes
         });
